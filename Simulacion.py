@@ -11,102 +11,110 @@ from random import random
 from random import randrange
 from os import system
 
+#############################
+#   DECLARACION VARIABLES   #
+#############################
+
 #### CONDICIONES INCIALES ####
-t = 0
+tiempo = 0
 
 # Eventos Futuros
-tpll = 0
-tps = []
-tprc = 100
-tprp = 400
+tiempoLlegada = 0
+tiempoSalida = []
+tiempoProximaReposicionCuadernos = 100
+tiempoProximaReposicionPokemon = 400
 
 # Variables datos
-ia = 0
-ta = 0
-ce = 0
+intervaloArribos = 0
+tiempoAtencion = 0
+cantidadElementosComprados = 0
 
 # Variables de control
-cc = 0
-pc = 0
-pp = 0
+cantidadCajeras = 0
+pedidoCuadernos = 0
+pedidoPokemon = 0
 
 # Variables de estado
-ns = 0
-sc = 100
-sp = 100
+cantidadPersonasEnElSistema = 0
+stockCuadernos = 100
+stockPokemon = 100
 
 # Variables de resultado
-pte = 0
-pa = 0
-pto = 0
-pvp = 0
+promedioTiempoEspera = 0
+porcentajeArrepentimiento = 0
+porcentajeTiempoOcioso = 0
+porcentajeVentasPerdidas = 0
 
 # Variables auxiliares del sistema
-nt = 0
-vp = 0
-arr = 0
-ito = []
-sll = 0
-ssal = 0
-sto = 0
-sta = 0
+cantidadTotalPersonas = 0
+ventasPerdidas = 0
+arrepentidos = 0
+inicioTiempoOcioso = []
+sumatoriaTiempoLlegada = 0
+sumatoriaTiempoSalida = 0
+sumatoriaTiempoOcioso = 0
+sumatoriaTiempoAtencion = 0
 eventos = [[],["tpll","tprc","tprp","tps"]]
 puestoActual = 0
 
 #TODO VER CÓMO SE DEFINE
-tf = 0
+tiempoFinal = 0
+
+#############################
+#   DECLARACION FUNCIONES   #
+#############################
 
 def generarIntervaloDeArribo():
     #TODO REEEMPLAZAR POR FUNCION DE PROBABILIDAD
-    global ia
-    ia = randrange(1,10)
+    global intervaloArribos
+    intervaloArribos = randrange(1,10)
     #print("Intervalo de arribos: " + str(ia))
     return 0
 
 def generarCantidadDeElementos():
     #TODO REEEMPLAZAR POR FUNCION DE PROBABILIDAD
-    global ce
-    ce = randrange(1, 10)
+    global cantidadElementosComprados
+    cantidadElementosComprados = randrange(1, 10)
     #print("Cantidad de elementos: " + str(ce))
     return 0
 
 def generarTiempoDeAtencion():
     #TODO REEEMPLAZAR POR FUNCION DE PROBABILIDAD
-    global ta
-    ta = random() * 100
+    global tiempoAtencion
+    tiempoAtencion = random() * 100
     #print("Tiempo de atención: " + str(ta))
     return 0
 
 def buscoCajeroLibre():
     global puestoActual
-    puestoActual = tps.index("H.V")
+    puestoActual = tiempoSalida.index("H.V")
     #print("Puesto actual: " + str(puestoActual))
     return 0
 
 def variablesDeControl():
     print("Ingrese la variable de control: Cantidad de Cajeros")
-    global cc
-    global ito
-    global tps
+    global cantidadCajeras
+    global inicioTiempoOcioso
+    global tiempoSalida
 
-    cc = int(input())
+    cantidadCajeras = int(input())
     
-    for i in range(0, cc):
-        ito.append(0)
-        tps.append("H.V")
+    for i in range(0, cantidadCajeras):
+        inicioTiempoOcioso.append(0)
+        tiempoSalida.append("H.V")
 
     print("Ingrese la variable de control: Pedido Cuadernos")
-    global pc
-    pc = int(input())
+    global pedidoCuadernos
+    pedidoCuadernos = int(input())
     
     print("Ingrese la variable de control: Pedido Pokemones")
-    global pp
-    pp = int(input())
+    global pedidoPokemon
+    pedidoPokemon = int(input())
 
     #TODO REVISAR
     print("Ingrese el tiempo final de la simulación")
-    global tf
-    tf = int(input())
+    global tiempoFinal
+    tiempoFinal = int(input())
     
     return 0
 
@@ -115,29 +123,29 @@ def proximoEvento():
     global eventos
 
     #Obtengo el menor de los tiempos próximos de salida
-    tpsi = tf + tf/2
+    tpsi = tiempoFinal + tiempoFinal/2
     vacios = 0
-    for i in range(0, len(tps)):
-        if(tps[i] != "H.V"):
-            if(tps[i] < tpsi):
+    for i in range(0, len(tiempoSalida)):
+        if(tiempoSalida[i] != "H.V"):
+            if(tiempoSalida[i] < tpsi):
                 puestoActual = i
-                tpsi = tps[puestoActual]
+                tpsi = tiempoSalida[puestoActual]
         else:
             vacios = vacios + 1
     
-    if(tpll != "H.V"):
+    if(tiempoLlegada != "H.V"):
         #Limpio y vuelvo a cargar la lista con los tiempos de los eventos
         eventos[0].clear()
-        eventos[0].append(tpll)
-        eventos[0].append(tprc)    
-        eventos[0].append(tprp)
+        eventos[0].append(tiempoLlegada)
+        eventos[0].append(tiempoProximaReposicionCuadernos)    
+        eventos[0].append(tiempoProximaReposicionPokemon)
         eventos[0].append(tpsi)
         
         # Itero para encontrar el mínimo tiempo, junto con el indice correspondiente
         evento = ""
-        tiempo = min(tpll, tprc, tprp)
+        tiempo = min(tiempoLlegada, tiempoProximaReposicionCuadernos, tiempoProximaReposicionPokemon)
         elementos = len(eventos[0])
-        if(vacios == len(tps)):
+        if(vacios == len(tiempoSalida)):
             # Todos los puestos están en H.V, entonces asigno por defecto el puesto acutual a 0
             puestoActual = 0
             elementos = elementos - 1
@@ -171,45 +179,45 @@ def manejoProximoEvento(evento):
     return
 
 def stockDisponible():
-    global sc
-    global sp
+    global stockCuadernos
+    global stockPokemon
 
     generarCantidadDeElementos()
     rand = random()
     if(rand < 0.65):
         print("Compra cuadernos")
-        if(sc < ce):
+        if(stockCuadernos < cantidadElementosComprados):
             print("SIN STOCK")
             sinStock()
             return False
         else:
             print("HAY STOCK")
-            sc = sc - ce
+            stockCuadernos = stockCuadernos - cantidadElementosComprados
             return True
     else:
         print("Compra pokemones")
-        if(sp < ce):
+        if(stockPokemon < cantidadElementosComprados):
             print("SIN STOCK")
             sinStock()
             return False
         else:
             print("HAY STOCK")
-            sp = sp - ce
+            stockPokemon = stockPokemon - cantidadElementosComprados
             return True
     return False
 
 def seLiberoPuesto():
-    global ito
-    global tps
+    global inicioTiempoOcioso
+    global tiempoSalida
     print("INICIO TIEMPO OCIOSO PUESTO " + str(puestoActual))
-    ito[puestoActual] = t
-    tps[puestoActual] = "H.V"
+    inicioTiempoOcioso[puestoActual] = tiempo
+    tiempoSalida[puestoActual] = "H.V"
     return 1
 
 def buscoCliente():
     if(not stockDisponible()):
-        if (ns >= cc):
-            print("Se fue un cliente por falta de stock, busco otro. Quedan: " + str(ns))
+        if (cantidadPersonasEnElSistema >= cantidadCajeras):
+            print("Se fue un cliente por falta de stock, busco otro. Quedan: " + str(cantidadPersonasEnElSistema))
             buscoCliente()
         else:
             print("Todos los clientes de la fila se fueron por falta de stock")
@@ -218,133 +226,133 @@ def buscoCliente():
     return True
 
 def llegadaCliente():
-    global tpll
-    global nt
-    global ns
-    global sc
-    global sp
-    global tps
-    global sto
-    global sll
-    global sta
-    global t
+    global tiempoLlegada
+    global cantidadTotalPersonas
+    global cantidadPersonasEnElSistema
+    global stockCuadernos
+    global stockPokemon
+    global tiempoSalida
+    global sumatoriaTiempoOcioso
+    global sumatoriaTiempoLlegada
+    global sumatoriaTiempoAtencion
+    global tiempo
 
     print("LLEGADA CLIENTE")
-    t = tpll
+    tiempo = tiempoLlegada
     generarIntervaloDeArribo()
-    tpll = t + ia
-    nt = nt + 1
+    tiempoLlegada = tiempo + intervaloArribos
+    cantidadTotalPersonas = cantidadTotalPersonas + 1
     arrep = arrepentimiento()
     if (not arrep):
         print("No se arrepintió")
-        ns = ns + 1
-        if(ns <= cc):
+        cantidadPersonasEnElSistema = cantidadPersonasEnElSistema + 1
+        if(cantidadPersonasEnElSistema <= cantidadCajeras):
             if(stockDisponible()):
                 buscoCajeroLibre()
                 print("Atiende el cajero " + str(puestoActual))
-                sto = sto + (t - ito[puestoActual])
-                sll = sll + t
+                sumatoriaTiempoOcioso = sumatoriaTiempoOcioso + (tiempo - inicioTiempoOcioso[puestoActual])
+                sumatoriaTiempoLlegada = sumatoriaTiempoLlegada + tiempo
                 generarTiempoDeAtencion()
-                sta = sta + ta
-                tps[puestoActual] = t + ta
-                print("El cliente sale a las: " + str(tps[puestoActual]))
+                sumatoriaTiempoAtencion = sumatoriaTiempoAtencion + tiempoAtencion
+                tiempoSalida[puestoActual] = tiempo + tiempoAtencion
+                print("El cliente sale a las: " + str(tiempoSalida[puestoActual]))
     return 1
 
 def salidaPuesto():
-    global ssal
-    global sta
-    global ns
-    global tps
-    global ito
-    global t
+    global sumatoriaTiempoSalida
+    global sumatoriaTiempoAtencion
+    global cantidadPersonasEnElSistema
+    global tiempoSalida
+    global inicioTiempoOcioso
+    global tiempo
 
     print("SE LIBERA PUESTO " + str(puestoActual))
-    t = tps[puestoActual]
-    ssal = ssal + t
-    ns = ns - 1
-    print("Ahora, NS = " + str(ns))
-    if(ns >= cc):
+    tiempo = tiempoSalida[puestoActual]
+    sumatoriaTiempoSalida = sumatoriaTiempoSalida + tiempo
+    cantidadPersonasEnElSistema = cantidadPersonasEnElSistema - 1
+    print("Ahora, NS = " + str(cantidadPersonasEnElSistema))
+    if(cantidadPersonasEnElSistema >= cantidadCajeras):
         print("ATIENDO CLIENTE")
         buscoCliente()
-        if(ns>=cc):
+        if(cantidadPersonasEnElSistema>=cantidadCajeras):
             generarTiempoDeAtencion()
-            tps[puestoActual] = t + ta
-            print("El cliente sale a las: " + str(tps[puestoActual]))
-            sta = sta + ta
+            tiempoSalida[puestoActual] = tiempo + tiempoAtencion
+            print("El cliente sale a las: " + str(tiempoSalida[puestoActual]))
+            sumatoriaTiempoAtencion = sumatoriaTiempoAtencion + tiempoAtencion
     else:
         seLiberoPuesto()
-    print("Después del manejo del evento salida, NS = " + str(ns))
+    print("Después del manejo del evento salida, NS = " + str(cantidadPersonasEnElSistema))
     return 1
 
 def pedidoCuadernos():
-    global t    
-    global sc    
-    global tprc    
+    global tiempo    
+    global stockCuadernos    
+    global tiempoProximaReposicionCuadernos    
 
     print("RECIBO CUADERNOS")
-    t = tprc
-    tprc = t + (14 * 8 * 60) #TODO REVISAR UNIDADES
-    sc = sc + pc
+    tiempo = tiempoProximaReposicionCuadernos
+    tiempoProximaReposicionCuadernos = tiempo + (14 * 8 * 60) #TODO REVISAR UNIDADES
+    stockCuadernos = stockCuadernos + pedidoCuadernos
     return 1
 
 def pedidoPokemones():
-    global t    
-    global sp    
-    global tprp
+    global tiempo    
+    global stockPokemon    
+    global tiempoProximaReposicionPokemon
     
     print("RECIBO POKEMONES")
-    t = tprp
-    tprp = t + (30 * 8 * 60) #TODO REVISAR UNIDADES
-    sp = sp + pp
+    tiempo = tiempoProximaReposicionPokemon
+    tiempoProximaReposicionPokemon = tiempo + (30 * 8 * 60) #TODO REVISAR UNIDADES
+    stockPokemon = stockPokemon + pedidoPokemon
     return 1
 
 def arrepentimiento():
-    global arr
-    print("Chequeo arrepentimiento con ns = " + str(ns))
-    if(ns > 15):
-        arr = arr + 1
+    global arrepentidos
+    print("Chequeo arrepentimiento con ns = " + str(cantidadPersonasEnElSistema))
+    if(cantidadPersonasEnElSistema > 15):
+        arrepentidos = arrepentidos + 1
         return True
-    elif (ns > 10):
+    elif (cantidadPersonasEnElSistema > 10):
         rand = random()
         if(rand > 0.4):
-            arr = arr + 1
+            arrepentidos = arrepentidos + 1
             return True
     return False
 
 def sinStock():
-    global vp
-    global ns
+    global ventasPerdidas
+    global cantidadPersonasEnElSistema
 
-    vp = vp + 1
-    ns = ns - 1
+    ventasPerdidas = ventasPerdidas + 1
+    cantidadPersonasEnElSistema = cantidadPersonasEnElSistema - 1
 
     return 1
 
 def vaciamiento():
     print("VACIAMIENTO")
-    global tpll
-    global tprc
-    global tprp
+    global tiempoLlegada
+    global tiempoProximaReposicionCuadernos
+    global tiempoProximaReposicionPokemon
 
     print("CANTIDAD DE PERSONAS EN EL SISTEMA")
-    print(ns)
+    print(cantidadPersonasEnElSistema)
     print("")
     cantVaciamiento = 1
-    while(ns != 0):  
+    while(cantidadPersonasEnElSistema != 0):  
         print("VACIAMIENTO " + str(cantVaciamiento))
         cantVaciamiento = cantVaciamiento + 1
 
-        tpll = "H.V"
-        tprc = "H.V"
-        tprp = "H.V"
+        tiempoLlegada = "H.V"
+        tiempoProximaReposicionCuadernos = "H.V"
+        tiempoProximaReposicionPokemon = "H.V"
         
         proxEvent = proximoEvento()
         manejoProximoEvento(proxEvent)
 
-        print("TERMINA VACIAMIENTO - t: " + str(t))
-        print("NS: " + str(ns))
-        for i in range(0,cc):
-            print("TPS" + str(i) + ": " + str(tps[i]))
+        print("TERMINA VACIAMIENTO - t: " + str(tiempo))
+        print("NS: " + str(cantidadPersonasEnElSistema))
+        for i in range(0,cantidadCajeras):
+            print("TPS" + str(i) + ": " + str(tiempoSalida[i]))
         print("")
         print("------------------------------------------")
         print("")
@@ -353,23 +361,23 @@ def vaciamiento():
     return 1
 
 def calculoDeResultados():   
-    global pte    
-    global pa
-    global pto
-    global pvp
+    global promedioTiempoEspera    
+    global porcentajeArrepentimiento
+    global porcentajeTiempoOcioso
+    global porcentajeVentasPerdidas
     
-    if(nt != 0):
-        pte = (ssal - sll - sta) / nt
-        pa = (arr/nt) * 100
-        pto = (sto/(t*cc)) * 100
-        pvp = (vp/nt) * 100
+    if(cantidadTotalPersonas != 0):
+        promedioTiempoEspera = (sumatoriaTiempoSalida - sumatoriaTiempoLlegada - sumatoriaTiempoAtencion) / cantidadTotalPersonas
+        porcentajeArrepentimiento = (arrepentidos/cantidadTotalPersonas) * 100
+        porcentajeTiempoOcioso = (sumatoriaTiempoOcioso/(tiempo*cantidadCajeras)) * 100
+        porcentajeVentasPerdidas = (ventasPerdidas/cantidadTotalPersonas) * 100
 
-        print("SSAL: " + str(ssal))
-        print("SLL: " + str(sll))
-        print("STA: " + str(sta))
-        print("STO: " + str(sto))
-        print("T: " + str(t))
-        print("VP: " + str(vp))
+        print("SSAL: " + str(sumatoriaTiempoSalida))
+        print("SLL: " + str(sumatoriaTiempoLlegada))
+        print("STA: " + str(sumatoriaTiempoAtencion))
+        print("STO: " + str(sumatoriaTiempoOcioso))
+        print("T: " + str(tiempo))
+        print("VP: " + str(ventasPerdidas))
     else:
         print("No ingresó nadie al sistema")
     return 1
@@ -377,15 +385,15 @@ def calculoDeResultados():
 def impresionDeResultados():
     print("-------------RESULTADOS--------------")
     
-    print("Cantidad total de clientes: " + str(nt))
+    print("Cantidad total de clientes: " + str(cantidadTotalPersonas))
 
-    print("Promedio de tiempo de espera: " + str(pte))
+    print("Promedio de tiempo de espera: " + str(promedioTiempoEspera))
     
-    print("Porcentaje de arrepentimiento: " + str(pa))
+    print("Porcentaje de arrepentimiento: " + str(porcentajeArrepentimiento))
     
-    print("Porcentaje de tiempo ocioso general: " + str(pto))
+    print("Porcentaje de tiempo ocioso general: " + str(porcentajeTiempoOcioso))
     
-    print("Porcentaje de ventas perdidas por falta de stock: " + str(pvp))
+    print("Porcentaje de ventas perdidas por falta de stock: " + str(porcentajeVentasPerdidas))
     
     print("-------------------------------------")
     
@@ -395,19 +403,19 @@ def imprimirEstado():
     print("")
     print("--------ESTADO--------")
 
-    print("T: " + str(t))
+    print("T: " + str(tiempo))
 
     # Eventos Futuros
-    print("TPLL: " + str(tpll))
-    print("TPRC: " + str(tprc))
-    print("TPRP: " + str(tprp))
+    print("TPLL: " + str(tiempoLlegada))
+    print("TPRC: " + str(tiempoProximaReposicionCuadernos))
+    print("TPRP: " + str(tiempoProximaReposicionPokemon))
     print("TPS: ")
-    print(tps)
+    print(tiempoSalida)
 
     # Variables datos
-    print("IA: " + str(ia))
-    print("TA: " + str(ta))
-    print("CE: " + str(ce))
+    print("IA: " + str(intervaloArribos))
+    print("TA: " + str(tiempoAtencion))
+    print("CE: " + str(cantidadElementosComprados))
 
     # Variables de control
     #cc
@@ -415,25 +423,29 @@ def imprimirEstado():
     #pp
 
     # Variables de estado
-    print("NS: " + str(ns))
-    print("SC: " + str(sc))
-    print("SP: " + str(sp))
+    print("NS: " + str(cantidadPersonasEnElSistema))
+    print("SC: " + str(stockCuadernos))
+    print("SP: " + str(stockPokemon))
     
-    print("NT: " + str(nt))
-    print("VP: " + str(vp))
-    print("ARR: " + str(arr))
-    print("SLL: " + str(sll))
-    print("SSAL: " + str(ssal))
-    print("STO: " + str(sto))
-    print("STA: " + str(sta))
+    print("NT: " + str(cantidadTotalPersonas))
+    print("VP: " + str(ventasPerdidas))
+    print("ARR: " + str(arrepentidos))
+    print("SLL: " + str(sumatoriaTiempoLlegada))
+    print("SSAL: " + str(sumatoriaTiempoSalida))
+    print("STO: " + str(sumatoriaTiempoOcioso))
+    print("STA: " + str(sumatoriaTiempoAtencion))
     print("Puesto Actual: " + str(puestoActual))
 
     print("ITO: ")
-    print(ito)
+    print(inicioTiempoOcioso)
     
     print("--------FIN ESTADO--------")
     print("")
     return 1
+
+#########################
+#   INICIO SIMULACION   #
+#########################
 
 def main():
     system("cls")
@@ -445,16 +457,16 @@ def main():
     
     variablesDeControl()
     
-    while(t < tf):  
+    while(tiempo < tiempoFinal):  
         #imprimirEstado()
-        print("ARRANCA VUELTA - t: " + str(t))
-        print("NS: " + str(ns))
+        print("ARRANCA VUELTA - t: " + str(tiempo))
+        print("NS: " + str(cantidadPersonasEnElSistema))
         proxEvent = proximoEvento()
         manejoProximoEvento(proxEvent)
-        print("TERMINA VUELTA - t: " + str(t))
-        print("NS: " + str(ns))
-        for i in range(0,cc):
-            print("TPS" + str(i) + ": " + str(tps[i]))
+        print("TERMINA VUELTA - t: " + str(tiempo))
+        print("NS: " + str(cantidadPersonasEnElSistema))
+        for i in range(0,cantidadCajeras):
+            print("TPS" + str(i) + ": " + str(tiempoSalida[i]))
         print("")
         print("------------------------------------------")
         print("")
