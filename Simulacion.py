@@ -10,6 +10,7 @@ from random import seed
 from random import random
 from random import randrange
 from os import system
+import smtplib
 
 #############################
 #   DECLARACION VARIABLES   #
@@ -59,6 +60,8 @@ puestoActual = 0
 running = True
 database = list()
 
+destinatarios = ["florenciamacarenalopez@gmail.com", "lucasgabrielvallejos96@gmail.com", "sebikap@gmail.com"]
+remitente = "simulacion80@gmail.com"
 tiempoFinal = 0
 
 #############################
@@ -609,9 +612,50 @@ def validatePreviousSimulation():
     simulation()
 
 def enviarPorMail():
-    print("\tFuncionalidad no implementada\n ")
-    return 0
     destinatario = input("Ingrese el mail del destinatario -> ")
+    destinatarios.append(destinatario)
+    tamañoBase = len(database)
+
+    with smtplib.SMTP('smtp.gmail.com', 587) as smtp:
+        smtp.ehlo()
+        smtp.starttls()
+        smtp.ehlo()
+
+        smtp.login(remitente,"FlorSebasLucas")
+
+        subject = 'Resultados de las Simulaciones'
+
+        body = ''
+        
+        for x in range(tamañoBase):
+            numSimulacion = ("Simulacion N: ", str(x+1))
+            body += numSimulacion[0] + numSimulacion[1]
+            var1 = (" CANTIDAD CAJERAS    ---> ", str(database[x]["CantidadCajeros"]))
+            body += var1[0] + var1[1]
+            var2 = (" PEDIDO CUADERNOS    ---> ", str(database[x]["PedidoCuadernos"]))
+            body += var2[0] + var2[1]
+            var3 = (" PEDIDO POKEMON      ---> ", str(database[x]["PedidoPokemon"]))
+            body += var3[0] + var3[1]
+            var4 = (" TIEMPO FINAL SIMULACION ---> ", str(database[x]["TiempoFinal"]))
+            body += var4[0] + var4[1]
+            var5 = (" TOTAL CLIENTES      ---> ", str(database[x]["TotalClientes"]))
+            body += var5[0] + var5[1]
+            var6 = (" PROMEDIO TIEMPO ESPERA  ---> ", str(database[x]["PromedioTiempoDeEspera"]))
+            body += var6[0] + var6[1]
+            var7 = (" PORCENTAJE ARREPENTIMIENTOS ---> ", str(database[x]["PorcentajeArrepentimiento"]))
+            body += var7[0] + var7[1]
+            var8 = (" PORCENTAJE TIEMPO OCIOSO ---> ", str(database[x]["PorcentajeTiempoOcioso"]))
+            body += var8[0] + var8[1]
+            var9 = (" PORCENTAJE VENTAS PERDIDAS ---> ", str(database[x]["PorcentajeVentasPerdidas"]))
+            body += var9[0] + var9[1]      
+            body += "**************************************************"
+        
+        body = body.encode('utf-8')
+        msg = f'Subject: {subject}\n\n{body}'
+        
+        smtp.sendmail(remitente, destinatarios, msg)   
+
+    print("\nMail Enviado Con Exito!")
 
 def salir():
     global running
