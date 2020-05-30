@@ -60,6 +60,8 @@ eventos = [[],["tpll","tprc","tprp","tps"]]
 puestoActual = 0
 running = True
 database = list()
+valorMaximoArrepentimiento = 0
+valorIntermedioArrepentimiento = 0
 
 destinatarios = ["florenciamacarenalopez@gmail.com", "lucasgabrielvallejos96@gmail.com", "sebikap@gmail.com"]
 remitente = "simulacion80@gmail.com"
@@ -181,11 +183,16 @@ def definirVariablesControl():
     global cantidadCajeras
     global inicioTiempoOcioso
     global tiempoSalida
+    global valorMaximoArrepentimiento
+    global valorIntermedioArrepentimiento
     cantidadCajeras = int(input("\nIngrese la variable de control: Cantidad de Cajeros -> "))
     
     for i in range(0, cantidadCajeras):
         inicioTiempoOcioso.append(0)
         tiempoSalida.append("H.V")
+
+    valorMaximoArrepentimiento = cantidadCajeras * 3
+    valorIntermedioArrepentimiento = cantidadCajeras * 1
 
     global pedidoCuadernos
     pedidoCuadernos = int(input("\nIngrese la variable de control: Pedido Cuadernos -> "))
@@ -329,12 +336,12 @@ def llegadaCliente():
     if (not arrep):
         print("No se arrepintió")
         cantidadPersonasEnElSistema = cantidadPersonasEnElSistema + 1
+        sumatoriaTiempoLlegada = sumatoriaTiempoLlegada + tiempo
         if(cantidadPersonasEnElSistema <= cantidadCajeras):
             if(stockDisponible()):
                 buscoCajeroLibre()
                 print("Atiende el cajero " + str(puestoActual))
                 sumatoriaTiempoOcioso = sumatoriaTiempoOcioso + (tiempo - inicioTiempoOcioso[puestoActual])
-                sumatoriaTiempoLlegada = sumatoriaTiempoLlegada + tiempo
                 generarTiempoDeAtencion()
                 sumatoriaTiempoAtencion = sumatoriaTiempoAtencion + tiempoAtencion
                 tiempoSalida[puestoActual] = tiempo + tiempoAtencion
@@ -394,10 +401,11 @@ def pedidoPokemones():
 def arrepentimiento():
     global arrepentidos
     print("Chequeo arrepentimiento con ns = " + str(cantidadPersonasEnElSistema))
-    if(cantidadPersonasEnElSistema > 15):
+    
+    if(cantidadPersonasEnElSistema > valorMaximoArrepentimiento):
         arrepentidos = arrepentidos + 1
         return True
-    elif (cantidadPersonasEnElSistema > 10):
+    elif (cantidadPersonasEnElSistema > valorIntermedioArrepentimiento):
         rand = random()
         if(rand > 0.4):
             arrepentidos = arrepentidos + 1
