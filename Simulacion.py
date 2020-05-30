@@ -56,13 +56,86 @@ sumatoriaTiempoOcioso = 0
 sumatoriaTiempoAtencion = 0
 eventos = [[],["tpll","tprc","tprp","tps"]]
 puestoActual = 0
+running = True
+database = list()
 
-#TODO VER CÓMO SE DEFINE
 tiempoFinal = 0
 
 #############################
 #   DECLARACION FUNCIONES   #
 #############################
+
+def cleanAllVariablesForTheNextSimulation():
+    global tiempo
+    global tiempoLlegada
+    global tiempoSalida
+    global tiempoProximaReposicionCuadernos
+    global tiempoProximaReposicionPokemon
+    global intervaloArribos
+    global tiempoAtencion
+    global cantidadElementosComprados
+    global cantidadCajeras
+    global pedidoCuadernos
+    global pedidoPokemon
+    global cantidadPersonasEnElSistema
+    global stockCuadernos
+    global stockPokemon
+    global promedioTiempoEspera
+    global porcentajeArrepentimiento
+    global porcentajeTiempoOcioso
+    global porcentajeVentasPerdidas
+    global cantidadTotalPersonas
+    global ventasPerdidas
+    global arrepentidos
+    global inicioTiempoOcioso
+    global sumatoriaTiempoSalida
+    global sumatoriaTiempoAtencion
+    global sumatoriaTiempoOcioso
+    global sumatoriaTiempoLlegada
+    global eventos
+    global puestoActual
+        
+    #### CONDICIONES INCIALES ####
+    tiempo = 0
+
+    # Eventos Futuros
+    tiempoLlegada = 0
+    tiempoSalida = []
+    tiempoProximaReposicionCuadernos = 100
+    tiempoProximaReposicionPokemon = 400
+
+    # Variables datos
+    intervaloArribos = 0
+    tiempoAtencion = 0
+    cantidadElementosComprados = 0
+
+    # Variables de control
+    cantidadCajeras = 0
+    pedidoCuadernos = 0
+    pedidoPokemon = 0
+
+    # Variables de estado
+    cantidadPersonasEnElSistema = 0
+    stockCuadernos = 100
+    stockPokemon = 100
+
+    # Variables de resultado
+    promedioTiempoEspera = 0
+    porcentajeArrepentimiento = 0
+    porcentajeTiempoOcioso = 0
+    porcentajeVentasPerdidas = 0
+
+    # Variables auxiliares del sistema
+    cantidadTotalPersonas = 0
+    ventasPerdidas = 0
+    arrepentidos = 0
+    inicioTiempoOcioso = []
+    sumatoriaTiempoLlegada = 0
+    sumatoriaTiempoSalida = 0
+    sumatoriaTiempoOcioso = 0
+    sumatoriaTiempoAtencion = 0
+    eventos = [[],["tpll","tprc","tprp","tps"]]
+    puestoActual = 0
 
 def generarIntervaloDeArribo():
     #TODO REEEMPLAZAR POR FUNCION DE PROBABILIDAD
@@ -91,32 +164,33 @@ def buscoCajeroLibre():
     #print("Puesto actual: " + str(puestoActual))
     return 0
 
-def variablesDeControl():
-    print("Ingrese la variable de control: Cantidad de Cajeros")
+def definirVariablesControl():
+    print("\t**************************************")
+    print("\t*  DEFINIR VARIABLES DE CONTROL      *")
+    print("\t**************************************")
+
     global cantidadCajeras
     global inicioTiempoOcioso
     global tiempoSalida
-
-    cantidadCajeras = int(input())
+    cantidadCajeras = int(input("\nIngrese la variable de control: Cantidad de Cajeros -> "))
     
     for i in range(0, cantidadCajeras):
         inicioTiempoOcioso.append(0)
         tiempoSalida.append("H.V")
 
-    print("Ingrese la variable de control: Pedido Cuadernos")
     global pedidoCuadernos
-    pedidoCuadernos = int(input())
+    pedidoCuadernos = int(input("\nIngrese la variable de control: Pedido Cuadernos -> "))
     
-    print("Ingrese la variable de control: Pedido Pokemones")
     global pedidoPokemon
-    pedidoPokemon = int(input())
+    pedidoPokemon = int(input("\nIngrese la variable de control: Pedido Pokemones -> "))
 
-    #TODO REVISAR
-    print("Ingrese el tiempo final de la simulación")
-    global tiempoFinal
-    tiempoFinal = int(input())
-    
-    return 0
+def definirTiempoFinal():
+    print("\t********************************************")
+    print("\t*  DEFINIR TIEMPO FINAL DE LA SIMULACION   *")
+    print("\t********************************************")
+
+    global tiempoFinal    
+    tiempoFinal = int(input("\nIngrese el Tiempo Final de la Simulacion -> "))
 
 def proximoEvento():
     global puestoActual
@@ -169,7 +243,7 @@ def manejoProximoEvento(evento):
     elif(evento == "tps"):
         salidaPuesto()
     elif(evento == "tprc"):
-        pedidoCuadernos()
+        pedidoDeCuadernos()
     elif(evento == "tprp"):
         pedidoPokemones()
     else:
@@ -284,7 +358,7 @@ def salidaPuesto():
     print("Después del manejo del evento salida, NS = " + str(cantidadPersonasEnElSistema))
     return 1
 
-def pedidoCuadernos():
+def pedidoDeCuadernos():
     global tiempo    
     global stockCuadernos    
     global tiempoProximaReposicionCuadernos    
@@ -397,7 +471,43 @@ def impresionDeResultados():
     
     print("-------------------------------------")
     
+    addNewHistorialResultados()
+
     return 1
+
+def addNewHistorialResultados():
+
+    nuevoResultado = {
+        "CantidadCajeros": cantidadCajeras, 
+        "PedidoCuadernos": pedidoCuadernos, 
+        "PedidoPokemon": pedidoPokemon,
+        "TiempoFinal": tiempoFinal,
+        "TotalClientes": cantidadTotalPersonas,
+        "PromedioTiempoDeEspera": promedioTiempoEspera,
+        "PorcentajeArrepentimiento": porcentajeArrepentimiento,
+        "PorcentajeTiempoOcioso": porcentajeTiempoOcioso,
+        "PorcentajeVentasPerdidas": porcentajeVentasPerdidas
+    }
+    database.append(nuevoResultado)
+
+def verUltimosResultados():
+    tamañoBase = len(database)
+    print("\t**************************************")
+    print("\t*       LISTADO DE RESULTADOS        *")
+    print("\t**************************************")
+
+    for x in range(tamañoBase):
+        print("\n\tSimulacion N°: ", x+1)
+        print("\n*CANTIDAD CAJERAS   ---> ", database[x]["CantidadCajeros"])
+        print("\n*PEDIDO CUADERNOS   ---> ", database[x]["PedidoCuadernos"])
+        print("\n*PEDIDO POKEMON     ---> ", database[x]["PedidoPokemon"])
+        print("\n*TIEMPO FINAL SIMULACION ---> ", database[x]["TiempoFinal"])
+        print("\n*TOTAL CLIENTES ---> ", database[x]["TotalClientes"])
+        print("\n*PROMEDIO TIEMPO ESPERA ---> ", database[x]["PromedioTiempoDeEspera"])
+        print("\n*PORCENTAJE ARREPENTIMIENTOS ---> ", database[x]["PorcentajeArrepentimiento"])
+        print("\n*PORCENTAJE TIEMPO OCIOSO ---> ", database[x]["PorcentajeTiempoOcioso"])
+        print("\n*PORCENTAJE VENTAS PERDIDAS ---> ", database[x]["PorcentajeVentasPerdidas"])
+
 
 def imprimirEstado():
     print("")
@@ -444,19 +554,17 @@ def imprimirEstado():
     return 1
 
 #########################
-#   INICIO SIMULACION   #
+#   Programa Principal  #
 #########################
 
-def main():
-    system("cls")
-    print("Comienzo de la simulación")
-    print("")
+def simulation():
+    print("\t**************************************")
+    print("\t*      COMIENZO DE LA SIMULACION     *")
+    print("\t**************************************")
     
     #Seteo el seed para el random del arrepentimiento
     seed(1)
-    
-    variablesDeControl()
-    
+        
     while(tiempo < tiempoFinal):  
         #imprimirEstado()
         print("ARRANCA VUELTA - t: " + str(tiempo))
@@ -467,14 +575,74 @@ def main():
         print("NS: " + str(cantidadPersonasEnElSistema))
         for i in range(0,cantidadCajeras):
             print("TPS" + str(i) + ": " + str(tiempoSalida[i]))
-        print("")
-        print("------------------------------------------")
-        print("")
+        print("\n------------------------------------------\n")
     
     vaciamiento()
     calculoDeResultados()
     impresionDeResultados()
-    print("Finalización de la simulación")
- 
-if __name__ == "__main__":
-    main()
+    cleanAllVariablesForTheNextSimulation()
+    print("\n\t**************************************")
+    print("\t*   FINALIZACION DE LA SIMULACION    *")
+    print("\t**************************************")
+
+def validateResponde(response):
+    #validamos que la eleccion del usuario sea la correcta. Por defecto suponemos que no.
+    validate = False
+    resp = 0
+    msg = "\nEleccion incorrecta. Intente nuevamente.\n"
+
+    if response.isdigit():
+        resp = int(response)
+        if resp>=1 and resp <=6:
+            msg = ""
+            validate = True
+    return validate, resp, msg
+
+def validatePreviousSimulation():
+    if(cantidadCajeras == 0 or pedidoCuadernos == 0 or pedidoPokemon == 0 or tiempoFinal == 0):
+        print("\t**************************************")
+        print("\t*      ACLARACION - CUIDADO          *")
+        print("\t**************************************")
+        print("\nSe deben inicializar las variables de control y el Tiempo Final antes de realizar la simulacion.")
+        print("Muchas gracias\n")
+        return 1
+    simulation()
+
+def enviarPorMail():
+    print("\tFuncionalidad no implementada\n ")
+    return 0
+    destinatario = input("Ingrese el mail del destinatario -> ")
+
+def salir():
+    global running
+    running = False
+    print ("Esperemos que haya disfrutado el sistema, hasta la proxima!.\n")
+
+def showMenu():
+    global running
+    running = True
+    print("\n\t1. Definir las Variables de Control.")
+    print("\t2. Definir el Tiempo Final.")
+    print("\t3. Empezar la Simulacion.")
+    print("\t4. Ver Resultados de las Últimas Simulaciones.")
+    print("\t5. Enviar Resultados por Mail.")
+    print("\t6. Salir.")
+    print("\t~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n")
+    response = input("Seleccione el numero de opcion -> ")
+    system('CLS')
+    return response 
+
+print("\tBienvenido al Sistema de Simulacion de Librerias\n")
+
+#   **************************
+#   *   LOOP PRINCIPAL       *
+#   **************************
+while(running):
+    menuOptions = {1: definirVariablesControl, 2:definirTiempoFinal, 3:validatePreviousSimulation, 4:verUltimosResultados, 5:enviarPorMail, 6:salir}    
+    response = showMenu()
+    validate, resp, msg = validateResponde(response)
+    if(validate):
+        funcion = menuOptions.get(resp)
+        funcion()
+    else:
+        print(msg)
