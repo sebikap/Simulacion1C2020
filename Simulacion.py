@@ -10,6 +10,7 @@ from random import seed
 from random import random
 from random import randrange
 from os import system
+import numpy as np
 
 #############################
 #   DECLARACION VARIABLES   #
@@ -36,8 +37,8 @@ pedidoPokemon = 0
 
 # Variables de estado
 cantidadPersonasEnElSistema = 0
-stockCuadernos = 100
-stockPokemon = 100
+stockCuadernos = 500
+stockPokemon = 500
 
 # Variables de resultado
 promedioTiempoEspera = 0
@@ -140,21 +141,26 @@ def cleanAllVariablesForTheNextSimulation():
 def generarIntervaloDeArribo():
     #TODO REEEMPLAZAR POR FUNCION DE PROBABILIDAD
     global intervaloArribos
-    intervaloArribos = randrange(1,10)
+    #intervaloArribos = randrange(1,10)
+    intervaloArribos = np.random.geometric(p=0.03806)
     #print("Intervalo de arribos: " + str(ia))
     return 0
 
 def generarCantidadDeElementos():
     #TODO REEEMPLAZAR POR FUNCION DE PROBABILIDAD
     global cantidadElementosComprados
-    cantidadElementosComprados = randrange(1, 10)
+    #cantidadElementosComprados = randrange(1, 10)
+    cantidadElementosComprados = np.random.binomial(n=1,p=0.77)
+    if (cantidadElementosComprados == 0):
+        cantidadElementosComprados = 2
     #print("Cantidad de elementos: " + str(ce))
     return 0
 
 def generarTiempoDeAtencion():
     #TODO REEEMPLAZAR POR FUNCION DE PROBABILIDAD
     global tiempoAtencion
-    tiempoAtencion = random() * 100
+    #tiempoAtencion = random() * 100
+    tiempoAtencion = np.random.binomial(n=191, p=0.03603)
     #print("Tiempo de atención: " + str(ta))
     return 0
 
@@ -329,6 +335,7 @@ def llegadaCliente():
                 generarTiempoDeAtencion()
                 sumatoriaTiempoAtencion = sumatoriaTiempoAtencion + tiempoAtencion
                 tiempoSalida[puestoActual] = tiempo + tiempoAtencion
+                print("El tiempo de atención será de: " + str(tiempoAtencion))
                 print("El cliente sale a las: " + str(tiempoSalida[puestoActual]))
     return 1
 
@@ -351,6 +358,7 @@ def salidaPuesto():
         if(cantidadPersonasEnElSistema>=cantidadCajeras):
             generarTiempoDeAtencion()
             tiempoSalida[puestoActual] = tiempo + tiempoAtencion
+            print("El tiempo de atención será de: " + str(tiempoAtencion))
             print("El cliente sale a las: " + str(tiempoSalida[puestoActual]))
             sumatoriaTiempoAtencion = sumatoriaTiempoAtencion + tiempoAtencion
     else:
@@ -459,6 +467,12 @@ def calculoDeResultados():
 def impresionDeResultados():
     print("-------------RESULTADOS--------------")
     
+    print("Variable de control - Cantidad de puestos: " + str(cantidadCajeras))
+
+    print("Variable de control - Pedido de cuadrenos: " + str(pedidoCuadernos))
+    
+    print("Variable de control - Pedido de pokemones: " + str(pedidoPokemon))
+
     print("Cantidad total de clientes: " + str(cantidadTotalPersonas))
 
     print("Promedio de tiempo de espera: " + str(promedioTiempoEspera))
