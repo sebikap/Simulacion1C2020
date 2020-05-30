@@ -38,8 +38,8 @@ pedidoPokemon = 0
 
 # Variables de estado
 cantidadPersonasEnElSistema = 0
-stockCuadernos = 500
-stockPokemon = 500
+stockCuadernos = 0
+stockPokemon = 0
 
 # Variables de resultado
 promedioTiempoEspera = 0
@@ -48,6 +48,8 @@ porcentajeTiempoOcioso = 0
 porcentajeVentasPerdidas = 0
 
 # Variables auxiliares del sistema
+diasLaborables = 0
+horasLaborales = 0
 cantidadTotalPersonas = 0
 ventasPerdidas = 0
 arrepentidos = 0
@@ -100,6 +102,8 @@ def cleanAllVariablesForTheNextSimulation():
     global sumatoriaTiempoLlegada
     global eventos
     global puestoActual
+    global diasLaborables
+    global horasLaborables
         
     #### CONDICIONES INCIALES ####
     tiempo = 0
@@ -107,8 +111,8 @@ def cleanAllVariablesForTheNextSimulation():
     # Eventos Futuros
     tiempoLlegada = 0
     tiempoSalida = []
-    tiempoProximaReposicionCuadernos = 100
-    tiempoProximaReposicionPokemon = 400
+    tiempoProximaReposicionCuadernos = 0 
+    tiempoProximaReposicionPokemon = 0
 
     # Variables datos
     intervaloArribos = 0
@@ -122,8 +126,8 @@ def cleanAllVariablesForTheNextSimulation():
 
     # Variables de estado
     cantidadPersonasEnElSistema = 0
-    stockCuadernos = 100
-    stockPokemon = 100
+    stockCuadernos = 0
+    stockPokemon = 0
 
     # Variables de resultado
     promedioTiempoEspera = 0
@@ -132,6 +136,8 @@ def cleanAllVariablesForTheNextSimulation():
     porcentajeVentasPerdidas = 0
 
     # Variables auxiliares del sistema
+    diasLaborables = 0
+    horasLaborables = 0
     cantidadTotalPersonas = 0
     ventasPerdidas = 0
     arrepentidos = 0
@@ -144,29 +150,20 @@ def cleanAllVariablesForTheNextSimulation():
     puestoActual = 0
 
 def generarIntervaloDeArribo():
-    #TODO REEEMPLAZAR POR FUNCION DE PROBABILIDAD
     global intervaloArribos
-    #intervaloArribos = randrange(1,10)
     intervaloArribos = np.random.geometric(p=0.03806)
-    #print("Intervalo de arribos: " + str(ia))
     return 0
 
 def generarCantidadDeElementos():
-    #TODO REEEMPLAZAR POR FUNCION DE PROBABILIDAD
     global cantidadElementosComprados
-    #cantidadElementosComprados = randrange(1, 10)
     cantidadElementosComprados = np.random.binomial(n=1,p=0.77)
     if (cantidadElementosComprados == 0):
         cantidadElementosComprados = 2
-    #print("Cantidad de elementos: " + str(ce))
     return 0
 
 def generarTiempoDeAtencion():
-    #TODO REEEMPLAZAR POR FUNCION DE PROBABILIDAD
     global tiempoAtencion
-    #tiempoAtencion = random() * 100
     tiempoAtencion = np.random.binomial(n=191, p=0.03603)
-    #print("Tiempo de atención: " + str(ta))
     return 0
 
 def buscoCajeroLibre():
@@ -194,9 +191,15 @@ def definirVariablesControl():
     valorMaximoArrepentimiento = cantidadCajeras * 3
     valorIntermedioArrepentimiento = cantidadCajeras * 1
 
+    global stockCuadernos
+    stockCuadernos = int(input("\nIngrese el stock inicial de cuadernos. -> "))
+
     global pedidoCuadernos
     pedidoCuadernos = int(input("\nIngrese la variable de control: Pedido Cuadernos -> "))
     
+    global stockPokemon
+    stockPokemon = int(input("\nIngrese el stock inicial de pokemones. -> "))
+
     global pedidoPokemon
     pedidoPokemon = int(input("\nIngrese la variable de control: Pedido Pokemones -> "))
 
@@ -204,6 +207,18 @@ def definirTiempoFinal():
     print("\t********************************************")
     print("\t*  DEFINIR TIEMPO FINAL DE LA SIMULACION   *")
     print("\t********************************************")
+
+    global diasLaborables
+    diasLaborables = int(input("\nIngrese la cantidad de dias laborables por semana. -> "))
+    
+    global horasLaborables
+    horasLaborables = int(input("\nIngrese la cantidad de horas laborables. -> "))
+
+    global tiempoProximaReposicionCuadernos
+    tiempoProximaReposicionCuadernos = 2 * diasLaborables * horasLaborables * 60
+    
+    global tiempoProximaReposicionPokemon
+    tiempoProximaReposicionPokemon = 4 * diasLaborables * horasLaborables * 60
 
     global tiempoFinal    
     tiempoFinal = int(input("\nIngrese el Tiempo Final de la Simulacion -> "))
@@ -383,7 +398,7 @@ def pedidoDeCuadernos():
 
     print("RECIBO CUADERNOS")
     tiempo = tiempoProximaReposicionCuadernos
-    tiempoProximaReposicionCuadernos = tiempo + (14 * 8 * 60) #TODO REVISAR UNIDADES
+    tiempoProximaReposicionCuadernos = tiempo + (14 * 8 * 60)
     stockCuadernos = stockCuadernos + pedidoCuadernos
     return 1
 
@@ -394,7 +409,7 @@ def pedidoPokemones():
     
     print("RECIBO POKEMONES")
     tiempo = tiempoProximaReposicionPokemon
-    tiempoProximaReposicionPokemon = tiempo + (30 * 8 * 60) #TODO REVISAR UNIDADES
+    tiempoProximaReposicionPokemon = tiempo + (30 * 8 * 60)
     stockPokemon = stockPokemon + pedidoPokemon
     return 1
 
@@ -415,9 +430,11 @@ def arrepentimiento():
 def sinStock():
     global ventasPerdidas
     global cantidadPersonasEnElSistema
+    global sumatoriaTiempoSalida
 
     ventasPerdidas = ventasPerdidas + 1
     cantidadPersonasEnElSistema = cantidadPersonasEnElSistema - 1
+    sumatoriaTiempoSalida = sumatoriaTiempoSalida + tiempo
 
     return 1
 
@@ -480,7 +497,7 @@ def impresionDeResultados():
     
     print("Variable de control - Cantidad de puestos: " + str(cantidadCajeras))
 
-    print("Variable de control - Pedido de cuadrenos: " + str(pedidoCuadernos))
+    print("Variable de control - Pedido de cuadernos: " + str(pedidoCuadernos))
     
     print("Variable de control - Pedido de pokemones: " + str(pedidoPokemon))
 
@@ -538,7 +555,7 @@ def imprimirEstado():
     print("")
     print("--------ESTADO--------")
 
-    print("T: " + str(tiempo))
+    print("--------------------------- T: " + str(tiempo) + " ------------------------------")
 
     # Eventos Futuros
     print("TPLL: " + str(tiempoLlegada))
@@ -592,15 +609,8 @@ def simulation():
         
     while(tiempo < tiempoFinal):  
         #imprimirEstado()
-        print("ARRANCA VUELTA - t: " + str(tiempo))
-        print("NS: " + str(cantidadPersonasEnElSistema))
         proxEvent = proximoEvento()
         manejoProximoEvento(proxEvent)
-        print("TERMINA VUELTA - t: " + str(tiempo))
-        print("NS: " + str(cantidadPersonasEnElSistema))
-        for i in range(0,cantidadCajeras):
-            print("TPS" + str(i) + ": " + str(tiempoSalida[i]))
-        print("\n------------------------------------------\n")
     
     vaciamiento()
     calculoDeResultados()
