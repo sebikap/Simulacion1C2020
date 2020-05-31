@@ -151,7 +151,7 @@ def cleanAllVariablesForTheNextSimulation():
 
 def generarIntervaloDeArribo():
     global intervaloArribos
-    intervaloArribos = np.random.geometric(p=0.03806)
+    intervaloArribos = np.random.geometric(p=0.03889)
     return 0
 
 def generarCantidadDeElementos():
